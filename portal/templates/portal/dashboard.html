@@ -19,6 +19,13 @@
 
 {% with title="Clients >30j" value=clients_over_30 value_raw=clients_over_30 meta="clients débiteurs" state="danger" tooltip="Clients dont au moins une facture est >30j d’échéance" %}{% include "portal/components/kpi.html" %}{% endwith %}
 
+  {% include "portal/components/kpi.html" with
+      title="Clients >30j"
+      value=clients_over_30
+      value_raw=clients_over_30
+      meta="clients débiteurs"
+      state="danger"
+      tooltip="Clients dont au moins une facture est >30j d’échéance" %}
 </div>
 
 
