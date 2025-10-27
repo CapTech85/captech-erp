@@ -1,0 +1,36 @@
+{% extends "portal/base.html" %}
+{% block title %}Connexion{% endblock %}
+{% block page_title %}Se connecter{% endblock %}
+{% block content %}
+<div class="max-w-sm">
+  <div class="card p-6">
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="text-sm">Identifiant</label>
+        <input class="w-full rounded border-slate-300" type="text" name="username" required>
+      </div>
+      <div class="mb-4">
+        <label class="text-sm">Mot de passe</label>
+        <input class="w-full rounded border-slate-300" type="password" name="password" required>
+      </div>
+      <button class="btn btn-primary w-full">Connexion</button>
+      {% if form.errors %}
+        <div class="mt-3 rounded bg-danger-50 text-danger-900 px-3 py-2 text-sm">{{ form.errors }}</div>
+      {% endif %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <!-- Séparateur plein avec "ou" au centre -->
+      <div class="mt-6 flex items-center gap-3" aria-hidden="true">
+        <div class="h-px bg-slate-200 flex-1"></div>
+          <span class="text-xs uppercase tracking-wide text-slate-400">ou</span>
+        <div class="h-px bg-slate-200 flex-1"></div>
+      </div>
+
+      <!-- Bouton S'inscrire -->
+      <div class="mt-4">
+        <a href="{% url 'portal:signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="btn btn-outline w-full">S’inscrire</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

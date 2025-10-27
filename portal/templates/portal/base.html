@@ -1,0 +1,91 @@
+{% load static %}
+{% load portal_extras %}
+<!doctype html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="{% static 'build/style.css' %}">
+  <link rel="icon" href="{% static 'favicon.ico' %}">
+  <title>{% block title %}CapTech ERP{% endblock %}</title>
+</head>
+<body class="bg-app text-slate-800 dark:text-slate-100">
+
+  <div class="min-h-screen flex">
+
+    <!-- SIDEBAR (bleue, responsive) -->
+    <aside id="sidebar" class="sidebar h-screen bg-brand-gradient text-white md:sticky top-0 shrink-0">
+      <div class="flex items-center gap-3 mb-6 ps-1">
+        <div class="h-10 w-10 rounded-xl bg-white/15 grid place-items-center font-bold shadow">CT</div>
+        <div class="leading-tight">
+          <div class="font-semibold">CapTech ERP</div>
+          <div class="text-[11px] opacity-80">v0.2</div>
+        </div>
+      </div>
+      <nav class="space-y-1 text-sm">
+        <a href="{% url 'portal:dashboard' %}" class="flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-white/10 {% nav_active '/' 'nav-active' %}">🏠 <span>Dashboard</span></a>
+        <a href="{% url 'portal:tickets' %}" class="flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-white/10 {% nav_active '/tickets' 'nav-active' %}">🎫 <span>Tickets</span></a>
+        <a href="{% url 'portal:tickets_kanban' %}" class="flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-white/10 {% nav_active '/tickets/kanban' 'nav-active' %}">🧩 <span>Kanban</span></a>
+        <a href="{% url 'portal:quotes' %}" class="flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-white/10 {% nav_active '/quotes' 'nav-active' %}">📄 <span>Devis</span></a>
+        <a href="{% url 'portal:invoices' %}" class="flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-white/10 {% nav_active '/invoices' 'nav-active' %}">🧾 <span>Factures</span></a>
+        <a href="{% url 'portal:accounting' %}" class="flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-white/10 {% nav_active '/accounting' 'nav-active' %}" >📊 <span>Comptabilité</span></a>
+                {% if request.user.is_authenticated %}
+          {% is_company_admin as can_admin %}
+          {% if can_admin %}
+        <a href="{% url 'portal:company_settings' %}" class="flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-white/10 {% nav_active 'settings/company' 'nav-active' %}">
+            <span class="i-[settings]" aria-hidden="true">⚙️</span>
+              <span>Paramètres de l’entreprise</span>
+        </a>
+          {% endif %}
+        {% endif %}
+        
+        {% if request.user.is_superuser %}
+          <div class="pt-4 mt-4 border-t border-white/10 text-[11px] uppercase tracking-wide opacity-80">Admin</div>
+          <a href="{% url 'admin:index' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10">🛠️ <span>Admin Django</span></a>
+          <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 {% nav_active '/admin/dashboard' 'nav-active' %}">📊 <span>Admin dashboard</span></a>
+        {% endif %}
+      </nav>
+      <div class="mt-auto pt-6 text-sm">
+        <div class="opacity-90">Connecté : <strong>{{ request.user.username }}</strong></div>
+        <div class="flex items-center gap-3 mt-3">
+          <button id="toggleTheme" class="btn btn-outline !py-1">🌓 Thème</button>
+          {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'logout' %}" class="inline">
+              {% csrf_token %}
+              <button type="submit" class="text-slate-700 hover:underline">Quitter</button>
+            </form>
+          {% else %}
+            <a class="text-white/80 hover:text-white underline" href="{% url 'login' %}">Se connecter</a>
+            <a class="text-white/80 hover:text-white underline" href="{% url 'portal:signup' %}">S’inscrire</a>
+          {% endif %}
+        </div>
+      </div>
+    </aside>
+
+    <!-- OVERLAY mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black/40 z-30 hidden md:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- MAIN -->
+    <main class="flex-1">
+      <header class="surface rounded-xl shadow-card mb-4 px-4 py-3 flex items-center justify-between">
+        <div class="px-4 md:px-6 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <button class="md:hidden btn btn-outline !py-1" onclick="toggleSidebar()">☰</button>
+            <div class="font-semibold">{% block page_title %}{% endblock %}</div>
+          </div>
+          <div class="ml-3 text-sm opacity-80 hidden sm:block">Bonjour, {{ request.user.username }}</div>
+        </div>
+      </header>
+      <!-- CONTAINER CENTRAL : réduit la largeur et centre le contenu -->
+      <div class="mx-auto w-full max-w-6xl xl:max-w-7xl px-4 md:px-6">
+      <div class="p-6 md:p-6">
+        {% block content %}{% endblock %}
+      </div> <!-- /container central -->
+    </main>
+  </div>
+
+  <!-- Toasts -->
+  <div id="toast-root" class="fixed top-4 right-4 z-50 space-y-2"></div>
+  <script src="{% static 'js/app.js' %}" defer></script>
+</body>
+</html>

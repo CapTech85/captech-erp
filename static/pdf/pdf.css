@@ -1,0 +1,12 @@
+/* static/pdf/pdf.css — styles compatibles xhtml2pdf */
+@page { size: A4; margin: 20mm; }
+
+body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 12px; color: #111; }
+h1 { font-size: 20px; margin: 0 0 8px 0; }
+.muted { color: #666; }
+.small { font-size: 11px; }
+
+.table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.table th, .table td { border: 1px solid #ccc; padding: 6px; }
+
+.right { text-align: right; }

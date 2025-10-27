@@ -1,0 +1,69 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="{% static 'pdf/pdf.css' %}">
+</head>
+<body>
+
+  <table width="100%">
+    <tr>
+      <td>
+        <h1>Devis {{ q.number }}</h1>
+        <div class="muted">Émis le {{ q.issue_date }}{% if q.valid_until %} • Valable jusqu'au {{ q.valid_until }}{% endif %}</div>
+        <div class="small muted">{{ q.company.name }} — {{ q.company.email }}</div>
+      </td>
+      <td class="right">
+        <strong>Client</strong><br>
+        {{ q.customer.name }}<br>
+        {{ q.customer.billing_address|linebreaksbr }}<br>
+        {% if q.customer.vat_number %}TVA: {{ q.customer.vat_number }}{% endif %}
+      </td>
+    </tr>
+  </table>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Désignation</th>
+        <th class="right">Qté</th>
+        <th class="right">PU HT</th>
+        <th class="right">Remise €</th>
+        <th class="right">TVA %</th>
+        <th class="right">TVA €</th>
+        <th class="right">Total HT</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in q.items %}
+      <tr>
+        <td>{{ it.description }}</td>
+        <td class="right">{{ it.quantity|floatformat:2 }}</td>
+        <td class="right">{{ it.unit_ht|floatformat:2 }} €</td>
+        <td class="right">{{ it.discount_ht|floatformat:2 }} €</td>
+        <td class="right">{{ it.vat_rate|floatformat:2 }} %</td>
+        <td class="right">{{ it.vat_amt|floatformat:2 }} €</td>
+        <td class="right">{{ it.line_ht|floatformat:2 }} €</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <table width="100%" style="margin-top:10px">
+    <tr>
+      <td>
+        {% if q.footer_note %}
+          <div class="small muted">{{ q.footer_note }}</div>
+        {% endif %}
+      </td>
+      <td class="right" width="40%">
+        <div>Sous-total HT : <strong>{{ q.subtotal_ht|floatformat:2 }} €</strong></div>
+        <div>TVA totale : <strong>{{ q.vat_total|floatformat:2 }} €</strong></div>
+        <div>Total TTC : <strong>{{ q.total_ttc|floatformat:2 }} €</strong></div>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

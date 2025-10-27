@@ -1,0 +1,19 @@
+/* Layout lié à la sidebar – une seule source de vérité */
+@media (min-width: 768px) {
+  #sidebar {
+    width: var(--sidebar-w) !important;
+  }
+}
+
+/* Utilitaires de thème */
+.surface{ background:var(--surface); }
+.bg-app{ background:var(--bg); }
+
+/* Sidebar repliée (optionnel) */
+.sidebar-collapsed #sidebar .nav-label{ display:none; }
+.sidebar-collapsed main{ margin-left:64px; }
+
+/* Dégradé bleu de la sidebar */
+@layer utilities{
+  .bg-brand-gradient{ @apply bg-gradient-to-b from-primary-600 to-primary-700; }
+}
