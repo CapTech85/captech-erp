@@ -42,3 +42,8 @@
 /* Titre de page */
 .page-title{ @apply text-xl font-semibold; color:var(--text); }
 .muted{ color:var(--muted); }
+
+/* optional: ensure skeleton overlay sits above content */
+.skeleton-placeholder { transition: opacity .25s ease; }
+/* hide when removed by JS (but JS currently sets display none) */
+.content-fade { will-change: opacity, transform; }
