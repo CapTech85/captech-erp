@@ -19,13 +19,7 @@
 
 {% with title="Clients >30j" value=clients_over_30 value_raw=clients_over_30 meta="clients débiteurs" state="danger" tooltip="Clients dont au moins une facture est >30j d’échéance" %}{% include "portal/components/kpi.html" %}{% endwith %}
 
-  {% include "portal/components/kpi.html" with
-      title="Clients >30j"
-      value=clients_over_30
-      value_raw=clients_over_30
-      meta="clients débiteurs"
-      state="danger"
-      tooltip="Clients dont au moins une facture est >30j d’échéance" %}
+
 </div>
 
 
@@ -103,7 +97,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
-<script src="{% static 'js/dashboard.js' %}"></script>
 <script src="{% static 'js/dashboard-polish.js' %}"></script>
 <script>
   window.DASHBOARD_CA_SERIES = {{ ca_series|safe }};
