@@ -1,13 +1,4 @@
-{# portal/templates/portal/components/kpi.html #}
-{# Props:
-   - title
-   - value (formaté, ex "12 345,67 €")
-   - value_raw (nombre, ex 12345.67)
-   - meta (option)
-   - delta (option)
-   - state: success|warn|danger (option)
-   - tooltip (option)
-#}
+
 <div class="relative bg-white rounded-2xl shadow-sm p-5 overflow-hidden" {% if tooltip %}title="{{ tooltip }}"{% endif %}>
   {# Skeleton placeholder (visible until js removes .skeleton-hidden) #}
   <div class="absolute inset-0 bg-white/90 flex items-center justify-center z-10 skeleton-placeholder">
