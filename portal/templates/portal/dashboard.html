@@ -1,75 +1,90 @@
 {% extends "portal/base.html" %}
-{% load portal_extras %}
-{% block title %}Dashboard - CapTech ERP{% endblock %}
-{% block page_title %}Dashboard{% endblock %}
+{% load static %}
+{% block title %}Dashboard — {{ company.name }}{% endblock %}
+
 {% block content %}
+<div class="p-6 space-y-6">
+  <h2 class="text-lg font-semibold">Dashboard — Bonjour, {{ request.user.get_full_name|default:request.user.username }}</h2>
 
-{% if company %}
-  <div class="mb-6 text-ink-600">Entreprise : <span class="font-semibold text-ink-900">{{ company.name }}</span></div>
+  <!-- GRID KPI -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    {% include "portal/components/kpi.html" with title="Trésorerie (est.) 30j" value=cash_balance|stringformat:"0.2f" meta="Prévision" %}
+    {% include "portal/components/kpi.html" with title="CA mois" value=ca_month|stringformat:"0.2f" meta="Mois courant" %}
+    {% include "portal/components/kpi.html" with title="Factures impayées" value=invoices_open_total|stringformat:"0.2f" meta="Total ouvert" %}
+    {% include "portal/components/kpi.html" with title="Clients >30j" value=clients_over_30 meta="clients débiteurs" %}
+  </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div class="card p-4">
-      <div class="text-[11px] text-ink-500">Tickets</div>
-      <div class="flex items-end justify-between">
-        <div class="text-2xl font-semibold">{{ stats.total }}</div>
-        <div class="chip bg-brand-50 text-brand-700">Total</div>
+  <!-- Second row : aging + recent invoices + top clients -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="bg-white rounded-2xl shadow-sm p-4">
+      <div class="font-semibold mb-3">Aging (créances)</div>
+      <table class="w-full text-sm">
+        <tbody>
+          <tr><td>0–30j</td><td class="text-right">{{ aging.0_30|default:0.00|stringformat:"0.2f" }} €</td></tr>
+          <tr><td>31–60j</td><td class="text-right">{{ aging.31_60|default:0.00|stringformat:"0.2f" }} €</td></tr>
+          <tr><td>61–90j</td><td class="text-right">{{ aging.61_90|default:0.00|stringformat:"0.2f" }} €</td></tr>
+          <tr><td>> 90j</td><td class="text-right">{{ aging.gt_90|default:0.00|stringformat:"0.2f" }} €</td></tr>
+        </tbody>
+      </table>
+      <div class="mt-3 text-xs text-slate-500">Montants TTC approximatifs</div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm p-4">
+      <div class="font-semibold mb-3">Factures récentes</div>
+      <div class="space-y-2 text-sm">
+        {% for inv in recent_invoices %}
+          <div class="flex justify-between">
+            <div>
+              <a href="{% url 'portal:invoice_edit' inv.pk %}" class="font-medium">{{ inv.number }}</a>
+              <div class="text-xs text-slate-400">{{ inv.issue_date }}</div>
+            </div>
+            <div class="text-right">
+              <div>{{ inv.computed_total|default:0.00|floatformat:2 }} €</div>
+              <div class="text-xs text-slate-400">{{ inv.status }}</div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="muted text-sm">Aucune facture récente</div>
+        {% endfor %}
       </div>
     </div>
-    <div class="card p-4">
-      <div class="text-[11px] text-ink-500">Ouverts</div>
-      <div class="flex items-end justify-between">
-        <div class="text-2xl font-semibold">{{ stats.open }}</div>
-        <div class="chip bg-brand-50 text-brand-700">Open</div>
-      </div>
-    </div>
-    <div class="card p-4">
-      <div class="text-[11px] text-ink-500">En cours</div>
-      <div class="flex items-end justify-between">
-        <div class="text-2xl font-semibold">{{ stats.in_progress }}</div>
-        <div class="chip bg-indigo-50 text-indigo-700">WIP</div>
-      </div>
-    </div>
-    <div class="card p-4">
-      <div class="text-[11px] text-ink-500">En attente</div>
-      <div class="flex items-end justify-between">
-        <div class="text-2xl font-semibold">{{ stats.waiting }}</div>
-        <div class="chip bg-amber-50 text-amber-900">Hold</div>
-      </div>
+
+    <div class="bg-white rounded-2xl shadow-sm p-4">
+      <div class="font-semibold mb-3">Top clients (90j)</div>
+      <ol class="text-sm list-decimal list-inside space-y-2">
+        {% for c in top_customers %}
+          <li class="flex justify-between">
+            <div>{{ c.name|default:"(client)" }}</div>
+            <div class="font-medium">{{ c.total|floatformat:2 }} €</div>
+          </li>
+        {% empty %}
+          <li class="muted">Aucun client</li>
+        {% endfor %}
+      </ol>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <section class="card">
-      <div class="px-4 py-3 border-b border-slate-200 font-medium">Tickets récents</div>
-      <div class="p-4">
-        {% if recent_tickets %}
-          <ul class="divide-y divide-slate-200">
-            {% for t in recent_tickets %}
-              <li class="py-3 flex items-center justify-between">
-                <div>
-                  <a class="font-medium hover:underline" href="{% url 'portal:ticket_detail' t.pk %}">#{{ t.id }} — {{ t.title }}</a>
-                  <div class="text-[12px] text-ink-500">Statut: {{ t.get_status_display }} • {{ t.created_at }}</div>
-                </div>
-                <span class="chip {{ t.priority|priority_badge_class }}">{{ t.get_priority_display }}</span>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <div class="text-sm text-ink-500">Aucun ticket.</div>
-        {% endif %}
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="px-4 py-3 border-b border-slate-200 font-medium">Factures récentes</div>
-      <div class="p-4 text-sm text-ink-500">Aucune facture.</div>
-    </section>
+  <!-- Sparkline / CA 12 mois -->
+  <div class="bg-white rounded-2xl shadow-sm p-4">
+    <div class="font-semibold mb-3">CA 12 mois</div>
+    <div style="height:160px;">
+      <canvas id="caSpark"></canvas>
+    </div>
   </div>
-{% else %}
-  <div class="card p-6">
-    <div class="font-medium mb-1">Aucune entreprise associée</div>
-    <div class="text-ink-600">Contactez le support.</div>
-  </div>
-{% endif %}
 
+  <!-- Quick actions -->
+  <div class="flex gap-3">
+    <a class="btn btn-primary" href="{% url 'portal:invoice_new' %}">Créer une facture</a>
+    <a class="btn btn-outline" href="{% url 'portal:quotes' %}">Créer un devis</a>
+    <a class="btn btn-outline" href="{% url 'portal:accounting' %}">Voir la page Comptabilité complète</a>
+  </div>
+</div>
+
+<!-- Chart.js — CDN (seulement pour Chart) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+<script>
+  // init chart avec les séries passées depuis la vue
+  window.DASHBOARD_CA_SERIES = {{ ca_series|safe }};
+</script>
 {% endblock %}

@@ -18,6 +18,7 @@ from core.services import next_quote_number, next_invoice_number, compute_totals
 from core.pdf import render_pdf_from_template
 from core.utils import invoice_total
 from .forms import TicketForm, TicketCommentForm, TicketAttachmentForm, TicketStatusForm, SignupForm, QuoteForm, QuoteItemFormSet, InvoiceForm, InvoiceItemFormSet, CompanySettingsForm
+from .services import compute_dashboard
 from datetime import datetime
 from decimal import Decimal
 
@@ -61,33 +62,40 @@ def _is_company_admin(user, company):
 
 @login_required
 def dashboard(request):
-    company = _user_company(request)
-    if not company:
-        return render(request, "portal/dashboard.html", {"company": None})
+  company = _user_company(request)
+  if not company:
+    return render(request, "portal/dashboard.html", {"company": None})
 
-    base = Ticket.objects.filter(company=company)
+  # Statistiques tickets (garde ta logique existante)
+  base = Ticket.objects.filter(company=company)
+  stats = {
+    "total": base.count(),
+    "open": base.filter(status="OPEN").count(),
+    "in_progress": base.filter(status="IN_PROGRESS").count(),
+    "waiting": base.filter(status="WAITING").count(),
+    "resolved": base.filter(status="RESOLVED").count(),
+    "closed": base.filter(status="CLOSED").count(),
+  }
 
-    stats = {
-        "total": base.count(),
-        "open": base.filter(status="OPEN").count(),
-        "in_progress": base.filter(status="IN_PROGRESS").count(),
-        "waiting": base.filter(status="WAITING").count(),
-        "resolved": base.filter(status="RESOLVED").count(),
-        "closed": base.filter(status="CLOSED").count(),
-    }
+  recent_tickets = base.select_related("assigned_to").order_by("-created_at")[:8]
+  # Récupération du dashboard compta
+  dashboard_kpis = compute_dashboard(company)
 
-    # même source que le kanban, tri par created_at décroissant
-    recent_tickets = (
-        base.select_related("assigned_to")
-            .order_by("-created_at")[:8]
-    )
-
-    ctx = {
-        "company": company,
-        "stats": stats,
-        "recent_tickets": recent_tickets,
-    }
-    return render(request, "portal/dashboard.html", ctx)
+  ctx = {
+    "company": company,
+    "stats": stats,
+    "recent_tickets": recent_tickets,
+    # dashboard commerce/compta
+    "cash_balance": dashboard_kpis["cash_balance"],
+    "ca_month": dashboard_kpis["ca_month"],
+    "invoices_open_total": dashboard_kpis["invoices_open_total"],
+    "clients_over_30": dashboard_kpis["clients_over_30"],
+    "recent_invoices": dashboard_kpis["recent_invoices"],
+    "aging": dashboard_kpis["aging"],
+    "top_customers": dashboard_kpis["top_customers"],
+    "ca_series": [float(x) for x in dashboard_kpis["ca_series"]],  # pour JS (Chart.js)
+  }
+  return render(request, "portal/dashboard.html", ctx)
 
 
 @login_required
