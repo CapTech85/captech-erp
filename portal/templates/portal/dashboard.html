@@ -1,90 +1,108 @@
 {% extends "portal/base.html" %}
 {% load static %}
+{% load portal_extras %}
+
 {% block title %}Dashboard — {{ company.name }}{% endblock %}
 
 {% block content %}
 <div class="p-6 space-y-6">
   <h2 class="text-lg font-semibold">Dashboard — Bonjour, {{ request.user.get_full_name|default:request.user.username }}</h2>
 
-  <!-- GRID KPI -->
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-    {% include "portal/components/kpi.html" with title="Trésorerie (est.) 30j" value=cash_balance|stringformat:"0.2f" meta="Prévision" %}
-    {% include "portal/components/kpi.html" with title="CA mois" value=ca_month|stringformat:"0.2f" meta="Mois courant" %}
-    {% include "portal/components/kpi.html" with title="Factures impayées" value=invoices_open_total|stringformat:"0.2f" meta="Total ouvert" %}
-    {% include "portal/components/kpi.html" with title="Clients >30j" value=clients_over_30 meta="clients débiteurs" %}
+  <!-- KPIs -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+    {% include "portal/components/kpi.html" with
+      title="Trésorerie (est.) 30j" value=cash_balance|money meta="Prévision"
+      state="success" tooltip="Somme des entrées/sorties (Turnover) sur 30 jours" %}
+
+    {% include "portal/components/kpi.html" with
+      title="CA mois" value=ca_month|money meta="Mois courant"
+      state="success" tooltip="Somme des factures émises ce mois" %}
+
+    {% include "portal/components/kpi.html" with
+      title="Factures impayées" value=invoices_open_total|money meta="Total ouvert"
+      state="warn" tooltip="Total des factures au statut 'ISSUED'" %}
+
+    {% include "portal/components/kpi.html" with
+      title="Clients >30j" value=clients_over_30 meta="clients débiteurs"
+      state="danger" tooltip="Clients dont au moins une facture est >30j d’échéance" %}
   </div>
 
-  <!-- Second row : aging + recent invoices + top clients -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-    <div class="bg-white rounded-2xl shadow-sm p-4">
+  <!-- Second row -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <!-- Aging -->
+    <div class="bg-white rounded-2xl shadow-sm p-5">
       <div class="font-semibold mb-3">Aging (créances)</div>
       <table class="w-full text-sm">
         <tbody>
-          <tr><td>0–30j</td><td class="text-right">{{ aging.0_30|default:0.00|stringformat:"0.2f" }} €</td></tr>
-          <tr><td>31–60j</td><td class="text-right">{{ aging.31_60|default:0.00|stringformat:"0.2f" }} €</td></tr>
-          <tr><td>61–90j</td><td class="text-right">{{ aging.61_90|default:0.00|stringformat:"0.2f" }} €</td></tr>
-          <tr><td>> 90j</td><td class="text-right">{{ aging.gt_90|default:0.00|stringformat:"0.2f" }} €</td></tr>
+          <tr><td>0–30j</td><td class="text-right">{{ aging.0_30|default:0|money }}</td></tr>
+          <tr><td>31–60j</td><td class="text-right">{{ aging.31_60|default:0|money }}</td></tr>
+          <tr><td>61–90j</td><td class="text-right">{{ aging.61_90|default:0|money }}</td></tr>
+          <tr><td>> 90j</td><td class="text-right">{{ aging.gt_90|default:0|money }}</td></tr>
         </tbody>
       </table>
       <div class="mt-3 text-xs text-slate-500">Montants TTC approximatifs</div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm p-4">
+    <!-- Factures récentes -->
+    <div class="bg-white rounded-2xl shadow-sm p-5">
       <div class="font-semibold mb-3">Factures récentes</div>
-      <div class="space-y-2 text-sm">
+      <div class="space-y-3 text-sm">
         {% for inv in recent_invoices %}
-          <div class="flex justify-between">
+          <div class="flex items-center justify-between">
             <div>
-              <a href="{% url 'portal:invoice_edit' inv.pk %}" class="font-medium">{{ inv.number }}</a>
+              <a href="{% url 'portal:invoice_edit' inv.pk %}" class="font-medium hover:text-slate-700">{{ inv.number }}</a>
               <div class="text-xs text-slate-400">{{ inv.issue_date }}</div>
             </div>
             <div class="text-right">
-              <div>{{ inv.computed_total|default:0.00|floatformat:2 }} €</div>
+              <div class="font-medium">{{ inv.computed_total|money }}</div>
               <div class="text-xs text-slate-400">{{ inv.status }}</div>
             </div>
           </div>
         {% empty %}
-          <div class="muted text-sm">Aucune facture récente</div>
+          <div class="text-center text-slate-500 py-6">
+            <div class="mb-2">Aucune facture récente</div>
+            <a class="inline-flex items-center px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50"
+               href="{% url 'portal:invoice_new' %}">Créer une facture</a>
+          </div>
         {% endfor %}
       </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm p-4">
+    <!-- Top clients -->
+    <div class="bg-white rounded-2xl shadow-sm p-5">
       <div class="font-semibold mb-3">Top clients (90j)</div>
       <ol class="text-sm list-decimal list-inside space-y-2">
         {% for c in top_customers %}
           <li class="flex justify-between">
             <div>{{ c.name|default:"(client)" }}</div>
-            <div class="font-medium">{{ c.total|floatformat:2 }} €</div>
+            <div class="font-medium">{{ c.total|money }}</div>
           </li>
         {% empty %}
-          <li class="muted">Aucun client</li>
+          <li class="text-slate-500">Aucun client (créez une facture pour commencer)</li>
         {% endfor %}
       </ol>
     </div>
   </div>
 
-  <!-- Sparkline / CA 12 mois -->
-  <div class="bg-white rounded-2xl shadow-sm p-4">
+  <!-- Sparkline -->
+  <div class="bg-white rounded-2xl shadow-sm p-5">
     <div class="font-semibold mb-3">CA 12 mois</div>
     <div style="height:160px;">
-      <canvas id="caSpark"></canvas>
+      <canvas id="caSpark" aria-label="Graphique du chiffre d’affaires sur 12 mois"></canvas>
     </div>
   </div>
 
-  <!-- Quick actions -->
-  <div class="flex gap-3">
+  <!-- Actions rapides -->
+  <div class="flex flex-wrap gap-3">
     <a class="btn btn-primary" href="{% url 'portal:invoice_new' %}">Créer une facture</a>
     <a class="btn btn-outline" href="{% url 'portal:quotes' %}">Créer un devis</a>
-    <a class="btn btn-outline" href="{% url 'portal:accounting' %}">Voir la page Comptabilité complète</a>
+    <a class="btn btn-outline" href="{% url 'portal:accounting' %}">Ouvrir la Comptabilité complète</a>
   </div>
 </div>
 
-<!-- Chart.js — CDN (seulement pour Chart) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
 <script src="{% static 'js/dashboard.js' %}"></script>
 <script>
-  // init chart avec les séries passées depuis la vue
   window.DASHBOARD_CA_SERIES = {{ ca_series|safe }};
 </script>
 {% endblock %}
