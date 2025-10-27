@@ -77,3 +77,11 @@ class InvoiceItemForm(ModelForm):
         fields = ["description", "quantity", "unit_price_cents", "vat_rate", "discount_pct"]
 
 InvoiceItemFormSet = inlineformset_factory(Invoice, InvoiceItem, form=InvoiceItemForm, extra=2, can_delete=True)
+
+class CompanySettingsForm(ModelForm):
+    class Meta:
+        model = Company
+        fields = [
+          "name", "siret", "email", "phone", "address",
+          "legal_status", "urssaf_frequency", "activity_kind", "tva_franchise",
+        ]

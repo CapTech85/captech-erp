@@ -3,15 +3,17 @@
   #sidebar {
     width: var(--sidebar-w) !important;
   }
-  main {
-    margin-left: var(--sidebar-w) !important;
-  }
 }
 
-/* Raccourcis utiles */
-.surface { background: var(--surface); }
-.bg-app  { background: var(--bg); }
+/* Utilitaires de thème */
+.surface{ background:var(--surface); }
+.bg-app{ background:var(--bg); }
 
-/* Masquer les libellés quand sidebar repliée (si tu actives le toggle plus tard) */
-.sidebar-collapsed #sidebar .nav-label { display: none; }
-.sidebar-collapsed main { margin-left: 64px; } /* repli */
+/* Sidebar repliée (optionnel) */
+.sidebar-collapsed #sidebar .nav-label{ display:none; }
+.sidebar-collapsed main{ margin-left:64px; }
+
+/* Dégradé bleu de la sidebar */
+@layer utilities{
+  .bg-brand-gradient{ @apply bg-gradient-to-b from-primary-600 to-primary-700; }
+}

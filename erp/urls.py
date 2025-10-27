@@ -16,7 +16,8 @@ urlpatterns = [
     path("admin/dashboard/", portal_views.admin_dashboard, name="admin_dashboard"),
 
     path("admin/", admin.site.urls),
-    path("", include("portal.urls")),
+    path("", include(("portal.urls", "portal"), namespace="portal")),
+    path("accounts/", include("django.contrib.auth.urls")),
 ]
 
 if settings.DEBUG:

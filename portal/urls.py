@@ -1,11 +1,13 @@
 from django.urls import path
 from . import views
+from .views_pdf import invoice_pdf, quote_pdf, urssaf_pdf
 
 app_name = "portal"
 
 urlpatterns = [
     path("signup/", views.signup, name="signup"),
     path("", views.dashboard, name="dashboard"),
+    path("settings/company/", views.company_settings, name="company_settings"),
     path("tickets/", views.tickets, name="tickets"),
     path("tickets/new/", views.ticket_create, name="ticket_create"),
     path("tickets/<int:pk>/", views.ticket_detail, name="ticket_detail"),
@@ -23,4 +25,7 @@ urlpatterns = [
     path("invoices/<int:pk>/pdf/", views.invoice_pdf, name="invoice_pdf"),
     path("accounting/", views.accounting_dashboard, name="accounting"),
     path("accounting/urssaf/pdf/", views.urssaf_pdf, name="urssaf_pdf"),
+    path("pdf/invoice/<int:pk>/", invoice_pdf, name="invoice_pdf"),
+    path("pdf/quote/<int:pk>/", quote_pdf, name="quote_pdf"),
+    path("pdf/urssaf/<int:pk>/", urssaf_pdf, name="urssaf_pdf"),
 ]

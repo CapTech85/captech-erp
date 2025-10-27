@@ -12,3 +12,31 @@
 @media (min-width: 768px){
   #sidebar { width: var(--sidebar-w) !important; }
 }
+
+@layer components {
+  .btn { @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-medium transition; }
+  .btn-primary { @apply bg-primary-600 text-white hover:bg-primary-700; }
+  .btn-outline { @apply border border-slate-300 text-slate-800 hover:bg-slate-50; }
+  .btn-danger { @apply bg-red-600 text-white hover:bg-red-700; }
+
+  .card { @apply rounded-2xl bg-white shadow-sm border border-slate-200; }
+  .card-section { @apply p-6; }
+
+  /* Liens de nav (sidebar) */
+  .nav-link { @apply flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100; }
+  .nav-active { @apply bg-slate-100 font-medium; }
+
+  /* Petites aides */
+  .muted { @apply text-slate-500; }
+  .field { @apply w-full rounded-lg border-slate-300; }
+  .field-sm { @apply w-full rounded-md border-slate-300 px-2 py-1; }
+
+    /* Variante lisible sur fond foncé (si sidebar bleue) */
+  .nav-link-on-dark { @apply text-white/90 hover:bg-white/10; }
+}
+
+/* ===== Utilitaires personnalisés ===== */
+@layer utilities {
+  /* Un seul nom de classe pour ta sidebar bleue */
+  .bg-brand-gradient { @apply bg-gradient-to-b from-primary-600 to-primary-700; }
+}

@@ -1,0 +1,35 @@
+{% extends "portal/base.html" %}
+{% block title %}Paramètres entreprise{% endblock %}
+{% block page_title %}Paramètres de l’entreprise{% endblock %}
+{% block content %}
+<div class="max-w-2xl">
+  <div class="card p-6 space-y-4">
+    <form method="post">{% csrf_token %}
+      {{ form.non_field_errors }}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {{ form.name.label_tag }} {{ form.name }}
+        {{ form.siret.label_tag }} {{ form.siret }}
+        {{ form.email.label_tag }} {{ form.email }}
+        {{ form.phone.label_tag }} {{ form.phone }}
+      </div>
+      <div class="mt-4">
+        {{ form.address.label_tag }} {{ form.address }}
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        {{ form.legal_status.label_tag }} {{ form.legal_status }}
+        {{ form.urssaf_frequency.label_tag }} {{ form.urssaf_frequency }}
+        {{ form.activity_kind.label_tag }} {{ form.activity_kind }}
+      </div>
+      <div class="mt-4">
+        <label class="inline-flex items-center gap-2">
+          {{ form.tva_franchise }} <span>Franchise en base de TVA</span>
+        </label>
+      </div>
+      <div class="mt-6 flex gap-2">
+        <button class="btn btn-primary">Enregistrer</button>
+        <a class="btn btn-outline" href="{% url 'portal:dashboard' %}">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

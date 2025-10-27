@@ -1,28 +1,44 @@
 /* Cartes / panneaux */
-.card {
-  @apply rounded-xl bg-white;
-  background: var(--surface);
-  box-shadow: var(--card-shadow);
+.card{
+  @apply rounded-xl bg-white border border-slate-200;
+  background:var(--surface);
+  box-shadow:var(--card-shadow);
 }
+.card-header{ @apply px-4 py-3 border-b border-slate-200 font-medium; }
+.card-body{ @apply p-4; }
+
+/* Ombres / rayons réutilisables */
+.shadow-card{ box-shadow:var(--card-shadow); }
+.rounded-xl2{ border-radius:var(--radius); }
 
 /* Boutons */
-.btn {
-  @apply inline-flex items-center justify-center font-medium transition border rounded-xl px-3.5 py-2.5;
-}
-.btn-primary   { @apply text-white border-transparent; background: var(--brand); }
-.btn-outline   { @apply text-[var(--brand)] border-[var(--brand)] bg-transparent; }
-.btn-ghost     { @apply text-[var(--brand)]; background: transparent; }
+.btn{ @apply inline-flex items-center justify-center font-medium transition rounded-xl px-3.5 py-2.5; }
+.btn-primary{ @apply text-white; background:var(--brand); }
+.btn-outline{ @apply border border-slate-300 text-slate-800 hover:bg-slate-50; }
+.btn-dark{ color:#fff; background:#111; }
+.btn-dark:hover{ background:#000; }
 
 /* Badges */
-.badge         { @apply inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full; }
-.badge-green   { @apply text-white; background: var(--success); }
-.badge-amber   { @apply text-white; background: var(--warning); }
-.badge-red     { @apply text-white; background: var(--danger); }
+.badge{ @apply inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full; }
+.badge-green{ @apply text-white; background:var(--success); }
+.badge-amber{ @apply text-white; background:var(--warning); }
+.badge-red{ @apply text-white; background:var(--danger); }
 
-/* Sidebar link */
-.nav-link      { @apply flex items-center gap-3 px-3 py-2 rounded-lg text-[15px] transition; color: var(--text); }
-.nav-link:hover{ @apply bg-blue-50; }
-.nav-link.active { background: rgba(37,99,235,.12); color: var(--brand); }
+/* Sidebar (liens) */
+.nav-link{ @apply flex items-center gap-3 px-3 py-2 rounded-lg text-[15px] transition; color:#fff; }
+.nav-link:hover{ background:rgba(255,255,255,.08); }
+
+/* État actif (sobre, lisible sur fond bleu) */
+.nav-active{
+  position:relative;
+  background:rgba(255,255,255,.12);
+}
+.nav-active::before{
+  content:"";
+  position:absolute; inset:0 auto 0 0; width:4px;
+  background:#fff; border-radius:999px;
+}
 
 /* Titre de page */
-.page-title { @apply text-xl font-semibold; color: var(--text); }
+.page-title{ @apply text-xl font-semibold; color:var(--text); }
+.muted{ color:var(--muted); }

@@ -17,9 +17,11 @@ from core.models import Membership, Company, Ticket, Customer, Quote, QuoteItem,
 from core.services import next_quote_number, next_invoice_number, compute_totals, feature_enabled
 from core.pdf import render_pdf_from_template
 from core.utils import invoice_total
-from .forms import TicketForm, TicketCommentForm, TicketAttachmentForm, TicketStatusForm, SignupForm, QuoteForm, QuoteItemFormSet, InvoiceForm, InvoiceItemFormSet
+from .forms import TicketForm, TicketCommentForm, TicketAttachmentForm, TicketStatusForm, SignupForm, QuoteForm, QuoteItemFormSet, InvoiceForm, InvoiceItemFormSet, CompanySettingsForm
 from datetime import datetime
 from decimal import Decimal
+
+
 
 
 def _is_superuser(u): return u.is_superuser
@@ -53,6 +55,9 @@ def signup(request):
     else:
         form = SignupForm()
     return render(request, "portal/signup.html", {"form": form})
+
+def _is_company_admin(user, company):
+    return user.is_superuser or Membership.objects.filter(user=user, company=company, role="ADMIN").exists()
 
 @login_required
 def dashboard(request):
@@ -550,3 +555,21 @@ def urssaf_pdf(request):
     resp = HttpResponse(out.getvalue(), content_type="application/pdf")
     resp["Content-Disposition"] = "inline; filename=urssaf_%s_%s.pdf" % (period_start.isoformat(), period_end.isoformat())
     return resp
+
+@login_required
+def company_settings(request):
+    company = _user_company(request)
+    if not company:
+        raise Http404()
+    if not _is_company_admin(request.user, company):
+        return HttpResponseForbidden("Accès restreint")
+
+    if request.method == "POST":
+        form = CompanySettingsForm(request.POST, instance=company)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Informations d’entreprise mises à jour.")
+            return redirect("portal:dashboard")
+    else:
+        form = CompanySettingsForm(instance=company)
+    return render(request, "portal/company_form.html", {"company": company, "form": form})

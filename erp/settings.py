@@ -67,3 +67,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Email — en dev on utilise la console (affiche les e-mails dans le terminal)
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "CapTech ERP <no-reply@captech.dev>"
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/"          # après login → dashboard
+LOGOUT_REDIRECT_URL = "/accounts/login/"

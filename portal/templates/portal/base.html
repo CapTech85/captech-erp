@@ -5,112 +5,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  {# CSS compilé Tailwind + tokens + composants #}
   <link rel="stylesheet" href="{% static 'build/style.css' %}">
   <link rel="icon" href="{% static 'favicon.ico' %}">
   <title>{% block title %}CapTech ERP{% endblock %}</title>
-
-  <!-- Tailwind via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .nav-active{position:relative;background:linear-gradient(90deg,rgba(255,255,255,.14),rgba(255,255,255,.06));}
-    .nav-active::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:#fff;border-radius:999px;}
-    .card {
-      background-color: #fff;
-      border-radius: 1.25rem;
-      border: 1px solid rgb(226, 232, 240);
-      box-shadow: 0 18px 60px -20px rgba(2, 6, 23, .25), 0 8px 24px -16px rgba(2,6,23,.15);
-    }
-    .dark .card {
-      background-color: rgb(31, 41, 55);
-      border-color: rgb(55, 65, 81);
-    }
-    .btn { 
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      border-radius: 0.5rem;
-      padding: 0.5rem 0.875rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      transition-property: all;
-      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-      transition-duration: 150ms;
-    }
-    .btn-primary { 
-      background-color: rgb(31, 111, 224);
-      color: #fff;
-    }
-    .btn-primary:hover {
-      background-color: rgb(26, 89, 184);
-    }
-    .btn-dark {
-      background-color: rgb(11, 19, 33);
-      color: #fff;
-    }
-    .btn-dark:hover {
-      background-color: #000;
-    }
-    .btn-outline {
-      border: 1px solid rgb(203, 213, 225);
-      color: rgb(55, 65, 81);
-    }
-    .dark .btn-outline {
-      border-color: rgb(75, 85, 99);
-      color: rgb(243, 244, 246);
-    }
-    .btn-outline:hover {
-      background-color: rgb(248, 250, 252);
-    }
-    .dark .btn-outline:hover {
-      background-color: rgb(55, 65, 81);
-    }
-    .chip { 
-      display: inline-flex;
-      align-items: center;
-      padding: 0 0.5rem;
-      height: 1.25rem;
-      font-size: 11px;
-      border-radius: 0.25rem;
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-    }
-    ::-webkit-scrollbar{width:10px;height:10px} ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px} ::-webkit-scrollbar-thumb:hover{background:#94a3b8}
-  </style>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand:   {50:'#eef6ff',100:'#d8ebff',200:'#b9dbff',300:'#8bc3ff',400:'#5aa6ff',500:'#2b87ff',600:'#1f6fe0',700:'#1a59b8',800:'#194c97',900:'#163f7b'},
-            success: {50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',400:'#34d399',500:'#10b981',600:'#059669',700:'#047857',800:'#065f46',900:'#064e3b'},
-            danger:  {50:'#fff1f2',100:'#ffe4e6',200:'#fecdd3',300:'#fda4af',400:'#fb7185',500:'#f43f5e',600:'#e11d48',700:'#be123c',800:'#9f1239',900:'#881337'},
-            ink:     {50:'#f6f7fb',100:'#edeff5',200:'#d9deea',300:'#b8bed0',400:'#8f99af',500:'#6b7280',600:'#4b5563',700:'#374151',800:'#1f2937',900:'#0b1321'},
-          },
-          boxShadow: {
-            card: '0 18px 60px -20px rgba(2, 6, 23, .25), 0 8px 24px -16px rgba(2,6,23,.15)'
-          },
-          borderRadius: { xl2: '1.25rem' }
-        }
-      }
-    }
-  </script>
-  <script>
-    // Dark mode persistence
-    (function(){
-      const pref = localStorage.getItem('theme');
-      if (pref==='dark' || (!pref && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-      }
-    })();
-  </script>
 </head>
-<body class="bg-ink-50 dark:bg-ink-900 text-ink-800 dark:text-ink-100">
+<body class="bg-app text-slate-800 dark:text-slate-100">
 
   <div class="min-h-screen flex">
 
     <!-- SIDEBAR (bleue, responsive) -->
-    <aside id="sidebar" class="sidebar h-screen bg-gradient-to-b from-brand-700 to-brand-600 text-white md:sticky top-0 shrink-0">
+    <aside id="sidebar" class="sidebar h-screen bg-brand-gradient text-white md:sticky top-0 shrink-0">
       <div class="flex items-center gap-3 mb-6 ps-1">
         <div class="h-10 w-10 rounded-xl bg-white/15 grid place-items-center font-bold shadow">CT</div>
         <div class="leading-tight">
@@ -124,11 +28,17 @@
         <a href="{% url 'portal:tickets_kanban' %}" class="flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-white/10 {% nav_active '/tickets/kanban' 'nav-active' %}">🧩 <span>Kanban</span></a>
         <a href="{% url 'portal:quotes' %}" class="flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-white/10 {% nav_active '/quotes' 'nav-active' %}">📄 <span>Devis</span></a>
         <a href="{% url 'portal:invoices' %}" class="flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-white/10 {% nav_active '/invoices' 'nav-active' %}">🧾 <span>Factures</span></a>
-        <li class="nav-item">
-        <a class="nav-link" href="{% url 'portal:accounting' %}">
-        📊 <span>Comptabilité</span>
+        <a href="{% url 'portal:accounting' %}" class="flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-white/10 {% nav_active '/accounting' 'nav-active' %}" >📊 <span>Comptabilité</span></a>
+                {% if request.user.is_authenticated %}
+          {% is_company_admin as can_admin %}
+          {% if can_admin %}
+        <a href="{% url 'portal:company_settings' %}" class="flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-white/10 {% nav_active 'settings/company' 'nav-active' %}">
+            <span class="i-[settings]" aria-hidden="true">⚙️</span>
+              <span>Paramètres de l’entreprise</span>
         </a>
-        </li>
+          {% endif %}
+        {% endif %}
+        
         {% if request.user.is_superuser %}
           <div class="pt-4 mt-4 border-t border-white/10 text-[11px] uppercase tracking-wide opacity-80">Admin</div>
           <a href="{% url 'admin:index' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10">🛠️ <span>Admin Django</span></a>
@@ -139,7 +49,15 @@
         <div class="opacity-90">Connecté : <strong>{{ request.user.username }}</strong></div>
         <div class="flex items-center gap-3 mt-3">
           <button id="toggleTheme" class="btn btn-outline !py-1">🌓 Thème</button>
-          <a class="text-white/80 hover:text-white underline" href="{% url 'admin:logout' %}">Quitter</a>
+          {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'logout' %}" class="inline">
+              {% csrf_token %}
+              <button type="submit" class="text-slate-700 hover:underline">Quitter</button>
+            </form>
+          {% else %}
+            <a class="text-white/80 hover:text-white underline" href="{% url 'login' %}">Se connecter</a>
+            <a class="text-white/80 hover:text-white underline" href="{% url 'portal:signup' %}">S’inscrire</a>
+          {% endif %}
         </div>
       </div>
     </aside>
@@ -168,30 +86,6 @@
 
   <!-- Toasts -->
   <div id="toast-root" class="fixed top-4 right-4 z-50 space-y-2"></div>
-  <script>
-    window.toast = function (msg, type="info") {
-      const root = document.getElementById('toast-root');
-      const el = document.createElement('div');
-      el.className = "rounded-lg px-4 py-3 shadow border text-sm transition-all";
-      if (type === "success") el.className += " bg-success-50 text-success-900 border-success-200";
-      else if (type === "error") el.className += " bg-danger-50 text-danger-900 border-danger-200";
-      else el.className += " bg-slate-100 text-ink-900 border-slate-200";
-      el.textContent = msg; root.appendChild(el);
-      el.style.opacity = 0; requestAnimationFrame(() => { el.style.opacity = 1; });
-      setTimeout(() => { el.style.opacity = 0; setTimeout(() => el.remove(), 200); }, 2400);
-    };
-    function toggleSidebar(){
-      const aside = document.getElementById('sidebar');
-      const ov = document.getElementById('overlay');
-      const hidden = aside.classList.toggle('-translate-x-full');
-      ov.classList.toggle('hidden', hidden);
-    }
-    document.getElementById('toggleTheme')?.addEventListener('click', ()=>{
-      const cls = document.documentElement.classList;
-      const dark = cls.toggle('dark');
-      localStorage.setItem('theme', dark ? 'dark':'light');
-      toast(dark ? 'Mode sombre activé' : 'Mode clair activé', 'success');
-    });
-  </script>
+  <script src="{% static 'js/app.js' %}" defer></script>
 </body>
 </html>
