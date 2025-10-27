@@ -32,6 +32,7 @@ def accounting_dashboard(request):
     start = request.GET.get("start_date")
     end = request.GET.get("end_date")
     client = request.GET.get("client")
+    client_filter = None
     if start:
         d = parse_date(start)
         if d:
@@ -41,11 +42,11 @@ def accounting_dashboard(request):
         if d:
             qs = qs.filter(issue_date__lte=d)
     if client:
-        try:
-            cid = int(client)
-            qs = qs.filter(customer__id=cid)
-        except Exception:
-            pass
+      try:
+          client_filter = int(client)
+          qs = qs.filter(customer__id=client_filter)
+      except (ValueError, TypeError):
+        client_filter = None
 
     # On limite l'affichage pour éviter surcharges (pager simple)
     page = int(request.GET.get("page") or "1")
@@ -142,7 +143,7 @@ def accounting_dashboard(request):
         "clients": clients,
         "start_date": start,
         "end_date": end,
-        "client_filter": client,
+        "client_filter": client_filter,
         "page": page,
     }
     return render(request, "portal/accounting/dashboard.html", ctx)

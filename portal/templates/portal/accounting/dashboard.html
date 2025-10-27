@@ -69,7 +69,7 @@
           <select name="client" class="field-sm">
             <option value="">Tous</option>
             {% for c in clients %}
-              <option value="{{ c.id }}" {% if client_filter and client_filter|int == c.id %}selected{% endif %}>{{ c.name }}</option>
+              <option value="{{ c.id }}" {% if client_filter and client_filter == c.id %}selected{% endif %}>{{ c.name }}</option>
             {% endfor %}
           </select>
         </div>
