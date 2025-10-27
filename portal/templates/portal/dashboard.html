@@ -9,23 +9,25 @@
   <h2 class="text-lg font-semibold">Dashboard — Bonjour, {{ request.user.get_full_name|default:request.user.username }}</h2>
 
   <!-- KPIs -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-    {% include "portal/components/kpi.html" with
-      title="Trésorerie (est.) 30j" value=cash_balance|money meta="Prévision"
-      state="success" tooltip="Somme des entrées/sorties (Turnover) sur 30 jours" %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
 
-    {% include "portal/components/kpi.html" with
-      title="CA mois" value=ca_month|money meta="Mois courant"
-      state="success" tooltip="Somme des factures émises ce mois" %}
+  {% with title="Trésorerie (est.) 30j" value=cash_balance|money meta="Prévision" state="success" tooltip="Somme des entrées/sorties (Turnover) sur 30 jours" %}
+    {% include "portal/components/kpi.html" %}
+  {% endwith %}
 
-    {% include "portal/components/kpi.html" with
-      title="Factures impayées" value=invoices_open_total|money meta="Total ouvert"
-      state="warn" tooltip="Total des factures au statut 'ISSUED'" %}
+  {% with title="CA mois" value=ca_month|money meta="Mois courant" state="success" tooltip="Somme des factures émises ce mois" %}
+    {% include "portal/components/kpi.html" %}
+  {% endwith %}
 
-    {% include "portal/components/kpi.html" with
-      title="Clients >30j" value=clients_over_30 meta="clients débiteurs"
-      state="danger" tooltip="Clients dont au moins une facture est >30j d’échéance" %}
-  </div>
+  {% with title="Factures impayées" value=invoices_open_total|money meta="Total ouvert" state="warn" tooltip="Total des factures au statut 'ISSUED'" %}
+    {% include "portal/components/kpi.html" %}
+  {% endwith %}
+
+  {% with title="Clients >30j" value=clients_over_30 meta="clients débiteurs" state="danger" tooltip="Clients dont au moins une facture est >30j d’échéance" %}
+    {% include "portal/components/kpi.html" %}
+  {% endwith %}
+
+</div>
 
   <!-- Second row -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
