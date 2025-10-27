@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 from .views_pdf import invoice_pdf, quote_pdf, urssaf_pdf
+# nouvelle importation
+from .views_accounting import accounting_dashboard as accounting_dashboard_view
 
 app_name = "portal"
 
@@ -23,9 +25,10 @@ urlpatterns = [
     path("invoices/new/", views.invoice_new, name="invoice_new"),
     path("invoices/<int:pk>/edit/", views.invoice_edit, name="invoice_edit"),
     path("invoices/<int:pk>/pdf/", views.invoice_pdf, name="invoice_pdf"),
-    path("accounting/", views.accounting_dashboard, name="accounting"),
+    # utilisation de la nouvelle vue
+    path("accounting/", accounting_dashboard_view, name="accounting"),
     path("accounting/urssaf/pdf/", views.urssaf_pdf, name="urssaf_pdf"),
     path("pdf/invoice/<int:pk>/", invoice_pdf, name="invoice_pdf"),
     path("pdf/quote/<int:pk>/", quote_pdf, name="quote_pdf"),
-    path("pdf/urssaf/<int:pk>/", urssaf_pdf, name="urssaf_pdf"),
+    path("pdf/urssaf/<int:pk>/", urssaf_pdf, name="pdf_urssaf"),
 ]
