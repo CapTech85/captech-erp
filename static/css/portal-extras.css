@@ -1,0 +1,6 @@
+/* static/css/portal-extras.css */
+body { background: linear-gradient(180deg,#fbfdff,#f8fafc); }
+.shadow-soft-lg { box-shadow: 0 12px 30px rgba(2,6,23,0.06); }
+.kpi-card { border: 1px solid rgba(14, 35, 56, 0.04); }
+.content-fade { transition: opacity .35s ease, transform .35s ease; opacity: 1; transform: none; }
+.skeleton-placeholder { transition: opacity .25s ease; }
