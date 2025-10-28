@@ -1,17 +1,41 @@
-{# portal/templates/portal/components/kpi.html #}
-<div class="bg-white rounded-2xl shadow-sm p-4">
-  <div class="flex items-start justify-between">
-    <div>
-      <div class="text-xs text-slate-500">{{ title }}</div>
-      <div class="text-2xl font-semibold text-slate-900">{{ value }}</div>
+
+<div class="relative bg-white rounded-2xl shadow-sm p-5 overflow-hidden" {% if tooltip %}title="{{ tooltip }}"{% endif %}>
+  {# Skeleton placeholder (visible until js removes .skeleton-hidden) #}
+  <div class="absolute inset-0 bg-white/90 flex items-center justify-center z-10 skeleton-placeholder">
+    <div class="w-3/4">
+      <div class="h-5 bg-slate-200 rounded mb-3 animate-pulse"></div>
+      <div class="h-8 bg-slate-200 rounded animate-pulse"></div>
     </div>
+  </div>
+
+  <div class="flex items-start justify-between gap-3 opacity-0 content-fade">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-500">
+        <span class="inline-block w-2 h-2 rounded-full
+          {% if state == 'danger' %}
+            bg-rose-500
+          {% elif state == 'warn' %}
+            bg-amber-500
+          {% else %}
+            bg-emerald-500
+          {% endif %}"></span>
+        <span>{{ title }}</span>
+      </div>
+
+      {# value display: server-rendered value (fallback) #}
+      <div class="text-3xl font-semibold text-slate-900 mt-1">
+        <span class="kpi-value" data-value="{{ value_raw|default:0 }}">{{ value }}</span>
+      </div>
+    </div>
+
     {% if meta %}
-      <div class="text-sm text-slate-400">{{ meta }}</div>
+      <div class="text-xs text-slate-400">{{ meta }}</div>
     {% endif %}
   </div>
+
   {% if delta %}
-    <div class="mt-3 text-sm text-slate-500">
-      <span class="{{ delta_class|default:'text-green-600' }}">{{ delta }}</span>
+    <div class="mt-3 text-sm content-fade">
+      <span class="{% if '-' in delta %}text-rose-600{% else %}text-emerald-600{% endif %}">{{ delta }}</span>
       <span class="text-slate-400"> {{ delta_label|default:"vs mois précédent" }}</span>
     </div>
   {% endif %}

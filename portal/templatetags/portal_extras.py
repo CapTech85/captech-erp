@@ -1,5 +1,6 @@
 from django import template
 from core.models import Membership
+from decimal import Decimal, InvalidOperation
 
 register = template.Library()
 
@@ -47,3 +48,35 @@ def is_company_admin(context):
     if not user or not user.is_authenticated:
         return False
     return user.is_superuser or Membership.objects.filter(user=user, role="ADMIN").exists()
+
+@register.filter
+def money(value, symbol="€"):
+    """
+    Affiche un montant en format FR: 12 345,67 €.
+    Utilisation: {{ montant|money }} ou {{ montant|money:"€" }}
+    """
+    if value is None:
+        return f"0,00 {symbol}"
+    try:
+        v = Decimal(value)
+    except (InvalidOperation, TypeError, ValueError):
+        try:
+            v = Decimal(str(float(value)))
+        except Exception:
+            return f"0,00 {symbol}"
+    s = f"{v:,.2f}"           # 12,345.67
+    s = s.replace(",", " ").replace(".", ",")  # 12 345,67
+    return f"{s} {symbol}"
+
+@register.filter
+def percent(value, digits=1):
+    """
+    Affiche un pourcentage avec signe: +4,2 %
+    Usage: {{ delta|percent }}  ou {{ delta|percent:2 }}
+    """
+    try:
+        v = float(value)
+    except (TypeError, ValueError):
+        v = 0.0
+    s = f"{v:+.{int(digits)}f}".replace(".", ",")
+    return f"{s} %"
