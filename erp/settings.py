@@ -13,7 +13,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_filters",
     "core",
-    "portal",
+    "portal.apps.PortalConfig",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
