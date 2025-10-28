@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -16,6 +17,24 @@ INSTALLED_APPS = [
     "core",
     "portal.apps.PortalConfig",
 ]
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1"),
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+    }
+}
+
+RQ_QUEUES = {
+    "default": {
+        "URL": os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1"),
+        "DEFAULT_TIMEOUT": 360,
+    }
+}
+
+# Ensure django_rq in INSTALLED_APPS
+if "django_rq" not in INSTALLED_APPS:
+    INSTALLED_APPS += ["django_rq"]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
