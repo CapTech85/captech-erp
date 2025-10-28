@@ -8,6 +8,8 @@ from .views_pdf import invoice_pdf, quote_pdf, urssaf_pdf
 
 # (views_pdf supprimé — on n'importe plus les mocks)
 
+# (views_pdf supprimé — on n'importe plus les mocks)
+
 app_name = "portal"
 
 urlpatterns = [

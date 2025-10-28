@@ -659,7 +659,7 @@ def invoice_pdf(request, pk: int):
         "total_ttc": total_ttc,
     }
 
-    pdf_bytes = render_pdf_from_template("portal/pdf/invoice.html", ctx)
+    pdf_bytes = render_pdf_from_template("pdf/invoice.html", ctx)
     resp = HttpResponse(pdf_bytes, content_type="application/pdf")
     resp["Content-Disposition"] = f'inline; filename="invoice_{inv.number}.pdf"'
     return resp
