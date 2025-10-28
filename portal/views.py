@@ -523,8 +523,7 @@ def quote_pdf(request, pk: int):
         raise Http404()
     subtotal, tax, total = compute_totals(q.items.all())
     pdf = render_pdf_from_template(
-        "portal/templates/pdf/quote.html",
-        {"q": q, "subtotal": subtotal, "tax": tax, "total": total},
+        "pdf/quote.html", {"q": q, "subtotal": subtotal, "tax": tax, "total": total}
     )
     resp = HttpResponse(pdf, content_type="application/pdf")
     resp["Content-Disposition"] = f'inline; filename="{q.number}.pdf"'
@@ -660,7 +659,7 @@ def invoice_pdf(request, pk: int):
         "total_ttc": total_ttc,
     }
 
-    pdf_bytes = render_pdf_from_template("portal/templates/pdf/invoice.html", ctx)
+    pdf_bytes = render_pdf_from_template("pdf/invoice.html", ctx)
     resp = HttpResponse(pdf_bytes, content_type="application/pdf")
     resp["Content-Disposition"] = f'inline; filename="invoice_{inv.number}.pdf"'
     return resp
@@ -766,7 +765,7 @@ def urssaf_pdf(request):
 
     contrib, rate_label = compute_contributions(company.activity_kind, period_ca)
 
-    template = get_template("portal/templates/pdf/urssaf_summary.html")
+    template = get_template("pdf/urssaf_summary.html")
     html = template.render(
         {
             "company": company,
