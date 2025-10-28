@@ -227,7 +227,10 @@ class Invoice(models.Model):
     created_by = models.ForeignKey("auth.User", null=True, on_delete=models.SET_NULL)
 
     class Meta:
-        unique_together = ("company", "number")
+      indexes = [
+        models.Index(fields=['company', 'issue_date'], name='idx_inv_company_issue'),
+        models.Index(fields=['company', 'status', 'due_at'], name='idx_inv_company_status_due'),
+    ]
 
     def __str__(self): return self.number
 
