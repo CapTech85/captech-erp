@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0003_ticketevent'),
+        ("core", "0003_ticketevent"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='ticket',
-            options={'ordering': ('order', '-created_at')},
+            name="ticket",
+            options={"ordering": ("order", "-created_at")},
         ),
         migrations.AddField(
-            model_name='ticket',
-            name='order',
+            model_name="ticket",
+            name="order",
             field=models.PositiveIntegerField(db_index=True, default=0),
         ),
     ]

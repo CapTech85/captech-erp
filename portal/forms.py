@@ -1,29 +1,58 @@
 from django import forms
 from django.contrib.auth.models import User
-from core.models import Company, Customer, Quote, QuoteItem, Invoice, InvoiceItem, Ticket, TicketComment, TicketAttachment
-from django.forms import ModelForm
-from django.forms import modelform_factory
-from django.forms import inlineformset_factory
+from django.forms import ModelForm, inlineformset_factory
+
+from core.models import (
+    Company,
+    Invoice,
+    InvoiceItem,
+    Quote,
+    QuoteItem,
+    Ticket,
+    TicketAttachment,
+    TicketComment,
+)
+
 
 class TicketForm(forms.ModelForm):
     class Meta:
         model = Ticket
         fields = ["title", "description", "priority"]
         widgets = {
-            "title": forms.TextInput(attrs={"class": "form-control", "placeholder": "Titre du ticket"}),
-            "description": forms.Textarea(attrs={"class": "form-control", "rows": 6, "placeholder": "Décrivez le problème…"}),
+            "title": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Titre du ticket"}
+            ),
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 6,
+                    "placeholder": "Décrivez le problème…",
+                }
+            ),
             "priority": forms.Select(attrs={"class": "form-control"}),
         }
-        labels = {"title": "Titre", "description": "Description", "priority": "Priorité"}
+        labels = {
+            "title": "Titre",
+            "description": "Description",
+            "priority": "Priorité",
+        }
+
 
 class TicketCommentForm(forms.ModelForm):
     class Meta:
         model = TicketComment
         fields = ["message"]
         widgets = {
-            "message": forms.Textarea(attrs={"class": "form-control", "rows": 4, "placeholder": "Ajouter un commentaire…"})
+            "message": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder": "Ajouter un commentaire…",
+                }
+            )
         }
         labels = {"message": "Commentaire"}
+
 
 class TicketAttachmentForm(forms.ModelForm):
     class Meta:
@@ -31,6 +60,7 @@ class TicketAttachmentForm(forms.ModelForm):
         fields = ["file"]
         widgets = {"file": forms.FileInput(attrs={"class": "form-control"})}
         labels = {"file": "Fichier"}
+
 
 class TicketStatusForm(forms.ModelForm):
     class Meta:
@@ -41,6 +71,7 @@ class TicketStatusForm(forms.ModelForm):
             "priority": forms.Select(attrs={"class": "form-control"}),
         }
         labels = {"status": "Statut", "priority": "Priorité"}
+
 
 class SignupForm(forms.Form):
     company_name = forms.CharField(max_length=200, label="Nom de l'entreprise")
@@ -53,35 +84,72 @@ class SignupForm(forms.Form):
         if User.objects.filter(username=u).exists():
             raise forms.ValidationError("Identifiant déjà utilisé")
         return u
-    
+
+
 class QuoteForm(ModelForm):
     class Meta:
         model = Quote
-        fields = ["customer", "issue_date", "valid_until", "status", "notes", "currency"]
+        fields = [
+            "customer",
+            "issue_date",
+            "valid_until",
+            "status",
+            "notes",
+            "currency",
+        ]
+
 
 class QuoteItemForm(ModelForm):
     class Meta:
         model = QuoteItem
-        fields = ["description", "quantity", "unit_price_cents", "vat_rate", "discount_pct"]
+        fields = [
+            "description",
+            "quantity",
+            "unit_price_cents",
+            "vat_rate",
+            "discount_pct",
+        ]
 
-QuoteItemFormSet = inlineformset_factory(Quote, QuoteItem, form=QuoteItemForm, extra=2, can_delete=True)
+
+QuoteItemFormSet = inlineformset_factory(
+    Quote, QuoteItem, form=QuoteItemForm, extra=2, can_delete=True
+)
+
 
 class InvoiceForm(ModelForm):
     class Meta:
         model = Invoice
         fields = ["customer", "issue_date", "due_at", "status", "notes", "currency"]
 
+
 class InvoiceItemForm(ModelForm):
     class Meta:
         model = InvoiceItem
-        fields = ["description", "quantity", "unit_price_cents", "vat_rate", "discount_pct"]
+        fields = [
+            "description",
+            "quantity",
+            "unit_price_cents",
+            "vat_rate",
+            "discount_pct",
+        ]
 
-InvoiceItemFormSet = inlineformset_factory(Invoice, InvoiceItem, form=InvoiceItemForm, extra=2, can_delete=True)
+
+InvoiceItemFormSet = inlineformset_factory(
+    Invoice, InvoiceItem, form=InvoiceItemForm, extra=2, can_delete=True
+)
+
 
 class CompanySettingsForm(ModelForm):
     class Meta:
         model = Company
         fields = [
-          "name", "siret", "email", "phone", "address",
-          "legal_status", "urssaf_frequency", "activity_kind", "tva_franchise",
+            "name",
+            "siret",
+            "email",
+            "phone",
+            "address",
+            "legal_status",
+            "urssaf_frequency",
+            "activity_kind",
+            "tva_franchise",
         ]

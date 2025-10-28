@@ -1,4 +1,5 @@
 from pathlib import Path
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "dev-only-change-me"
 DEBUG = True
@@ -49,8 +50,13 @@ DATABASES = {
     }
 }
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 8}},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {"min_length": 8},
+    },
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
@@ -59,14 +65,16 @@ TIME_ZONE = "Europe/Paris"
 USE_I18N = True
 USE_TZ = True
 STATIC_URL = "static/"
-STATICFILES_DIRS = [ BASE_DIR / "static" ]
+STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-REST_FRAMEWORK = {"DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"]}
+REST_FRAMEWORK = {
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"]
+}
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 # Email — en dev on utilise la console (affiche les e-mails dans le terminal)
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "CapTech ERP <no-reply@captech.dev>"
 LOGIN_URL = "/accounts/login/"
-LOGIN_REDIRECT_URL = "/"          # après login → dashboard
+LOGIN_REDIRECT_URL = "/"  # après login → dashboard
 LOGOUT_REDIRECT_URL = "/accounts/login/"

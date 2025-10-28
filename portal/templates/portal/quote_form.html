@@ -21,7 +21,7 @@
       <div class="space-y-3">
         {% for f in formset.forms %}
         <div class="rounded border p-3">
-          {{ f.id }} 
+          {{ f.id }}
           <div class="grid md:grid-cols-2 gap-3">
             {{ f.description.label_tag }} {{ f.description }}
             {{ f.quantity.label_tag }} {{ f.quantity }}

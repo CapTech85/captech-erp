@@ -1,20 +1,23 @@
 # portal/views_accounting.py
-from decimal import Decimal, ROUND_HALF_UP
-from django.shortcuts import render
+from decimal import ROUND_HALF_UP, Decimal
+
 from django.http import HttpResponse
-from django.db.models import Sum, F, ExpressionWrapper, DecimalField
+from django.shortcuts import render
 from django.utils.dateparse import parse_date
 
-from core.models import Invoice, InvoiceItem, Customer
+from core.models import Customer, Invoice
+
 from .views import _user_company  # réutilise l'utilitaire existant dans portal/views.py
 
 Q2 = Decimal("0.01")
+
 
 def cents_to_decimal(cents):
     """Convertit un montant en centimes (int/Decimal/None) en Decimal euros, arrondi à 2 décimales."""
     if cents is None:
         return Decimal("0.00")
     return (Decimal(cents) / Decimal(100)).quantize(Q2, rounding=ROUND_HALF_UP)
+
 
 def accounting_dashboard(request):
     """
@@ -42,37 +45,43 @@ def accounting_dashboard(request):
         if d:
             qs = qs.filter(issue_date__lte=d)
     if client:
-      try:
-          client_filter = int(client)
-          qs = qs.filter(customer__id=client_filter)
-      except (ValueError, TypeError):
-        client_filter = None
+        try:
+            client_filter = int(client)
+            qs = qs.filter(customer__id=client_filter)
+        except (ValueError, TypeError):
+            client_filter = None
 
     # On limite l'affichage pour éviter surcharges (pager simple)
     page = int(request.GET.get("page") or "1")
     page_size = 50
     offset = (page - 1) * page_size
-    invoices_page = list(qs.order_by("-issue_date")[offset:offset + page_size])
+    invoices_page = list(qs.order_by("-issue_date")[offset : offset + page_size])
 
     # Calculs totaux : on parcourt les factures et leurs lignes pour garantir arrondis corrects
     subtotal = Decimal("0.00")
     vat_total = Decimal("0.00")
 
     # Précharger les lignes
-    qs_with_lines = Invoice.objects.filter(pk__in=[i.pk for i in invoices_page]).prefetch_related("items")
+    qs_with_lines = Invoice.objects.filter(
+        pk__in=[i.pk for i in invoices_page]
+    ).prefetch_related("items")
 
     invoices_map = {i.pk: i for i in invoices_page}
     for inv in qs_with_lines:
         inv_sub = Decimal("0.00")
         inv_vat = Decimal("0.00")
         for line in inv.items.all():
-            unit_ht = (Decimal(line.unit_price_cents) / Decimal(100)).quantize(Q2, rounding=ROUND_HALF_UP)
+            unit_ht = (Decimal(line.unit_price_cents) / Decimal(100)).quantize(
+                Q2, rounding=ROUND_HALF_UP
+            )
             qty = Decimal(line.quantity)
             base_ht = (unit_ht * qty).quantize(Q2, rounding=ROUND_HALF_UP)
             discount_pct = Decimal(line.discount_pct or 0) / Decimal(100)
             discount_ht = (base_ht * discount_pct).quantize(Q2, rounding=ROUND_HALF_UP)
             line_ht = (base_ht - discount_ht).quantize(Q2, rounding=ROUND_HALF_UP)
-            vat_amt = (line_ht * (Decimal(line.vat_rate or 0) / Decimal(100))).quantize(Q2, rounding=ROUND_HALF_UP)
+            vat_amt = (line_ht * (Decimal(line.vat_rate or 0) / Decimal(100))).quantize(
+                Q2, rounding=ROUND_HALF_UP
+            )
 
             inv_sub += line_ht
             inv_vat += vat_amt
@@ -80,7 +89,9 @@ def accounting_dashboard(request):
         if inv.pk in invoices_map:
             invoices_map[inv.pk].total_ht = inv_sub
             invoices_map[inv.pk].total_vat = inv_vat
-            invoices_map[inv.pk].total_ttc = (inv_sub + inv_vat).quantize(Q2, rounding=ROUND_HALF_UP)
+            invoices_map[inv.pk].total_ttc = (inv_sub + inv_vat).quantize(
+                Q2, rounding=ROUND_HALF_UP
+            )
 
         subtotal += inv_sub
         vat_total += inv_vat
@@ -95,33 +106,57 @@ def accounting_dashboard(request):
         # BOM for Excel (optional)
         response.write("\ufeff")
         import csv
+
         writer = csv.writer(response)
-        writer.writerow(["Invoice", "Date", "Customer", "Status", "Total HT (€)", "TVA (€)", "Total TTC (€)"])
-        full_qs = Invoice.objects.filter(company=company).select_related("customer").prefetch_related("items").order_by("-issue_date")
+        writer.writerow(
+            [
+                "Invoice",
+                "Date",
+                "Customer",
+                "Status",
+                "Total HT (€)",
+                "TVA (€)",
+                "Total TTC (€)",
+            ]
+        )
+        full_qs = (
+            Invoice.objects.filter(company=company)
+            .select_related("customer")
+            .prefetch_related("items")
+            .order_by("-issue_date")
+        )
         for inv in full_qs:
             inv_sub = Decimal("0.00")
             inv_vat = Decimal("0.00")
             for line in inv.items.all():
-                unit_ht = (Decimal(line.unit_price_cents) / Decimal(100)).quantize(Q2, rounding=ROUND_HALF_UP)
+                unit_ht = (Decimal(line.unit_price_cents) / Decimal(100)).quantize(
+                    Q2, rounding=ROUND_HALF_UP
+                )
                 qty = Decimal(line.quantity)
                 base_ht = (unit_ht * qty).quantize(Q2, rounding=ROUND_HALF_UP)
                 discount_pct = Decimal(line.discount_pct or 0) / Decimal(100)
-                discount_ht = (base_ht * discount_pct).quantize(Q2, rounding=ROUND_HALF_UP)
+                discount_ht = (base_ht * discount_pct).quantize(
+                    Q2, rounding=ROUND_HALF_UP
+                )
                 line_ht = (base_ht - discount_ht).quantize(Q2, rounding=ROUND_HALF_UP)
-                vat_amt = (line_ht * (Decimal(line.vat_rate or 0) / Decimal(100))).quantize(Q2, rounding=ROUND_HALF_UP)
+                vat_amt = (
+                    line_ht * (Decimal(line.vat_rate or 0) / Decimal(100))
+                ).quantize(Q2, rounding=ROUND_HALF_UP)
 
                 inv_sub += line_ht
                 inv_vat += vat_amt
 
-            writer.writerow([
-                inv.number,
-                inv.issue_date.isoformat() if inv.issue_date else "",
-                inv.customer.name if inv.customer else "",
-                inv.status,
-                f"{inv_sub:.2f}",
-                f"{inv_vat:.2f}",
-                f"{(inv_sub + inv_vat):.2f}"
-            ])
+            writer.writerow(
+                [
+                    inv.number,
+                    inv.issue_date.isoformat() if inv.issue_date else "",
+                    inv.customer.name if inv.customer else "",
+                    inv.status,
+                    f"{inv_sub:.2f}",
+                    f"{inv_vat:.2f}",
+                    f"{(inv_sub + inv_vat):.2f}",
+                ]
+            )
         return response
 
     # Pour la liste de clients dans le filtre
@@ -131,9 +166,12 @@ def accounting_dashboard(request):
         "company": company,
         "year": (request.GET.get("year") or ""),
         "ca_ytd": "",  # conservé par ton template (calculs existants)
-        "micro_cap": "", "micro_progress": 0,
-        "vat_base": "", "vat_tol": "",
-        "period_start": "", "period_end": "",
+        "micro_cap": "",
+        "micro_progress": 0,
+        "vat_base": "",
+        "vat_tol": "",
+        "period_start": "",
+        "period_end": "",
         "urssaf_rate_label": "",
         "contrib": "",
         "invoices": invoices_page,
