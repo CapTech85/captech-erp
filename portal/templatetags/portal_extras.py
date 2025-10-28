@@ -1,8 +1,11 @@
-from django import template
-from core.models import Membership
 from decimal import Decimal, InvalidOperation
 
+from django import template
+
+from core.models import Membership
+
 register = template.Library()
+
 
 @register.filter
 def get_item(d, key):
@@ -13,9 +16,10 @@ def get_item(d, key):
 def nav_active(context, target: str, cls="nav-active"):
     req = context.get("request")
     path = (getattr(req, "path", "") or "").rstrip("/") or "/"
-    tgt  = (target or "").rstrip("/") or "/"
+    tgt = (target or "").rstrip("/") or "/"
     # Match STRICT (égalité) — évite les actifs multiples
     return cls if path == tgt else ""
+
 
 @register.filter
 def priority_badge_class(priority):
@@ -25,6 +29,7 @@ def priority_badge_class(priority):
     if priority == "LOW":
         return "bg-success-50 text-success-900"
     return "bg-amber-50 text-amber-900"
+
 
 @register.filter
 def status_head_class(status):
@@ -36,7 +41,8 @@ def status_head_class(status):
         "RESOLVED": "bg-success-600",
         "CLOSED": "bg-ink-500",
     }.get(status, "bg-ink-500")
-    
+
+
 @register.simple_tag(takes_context=True)
 def is_company_admin(context):
     """
@@ -47,7 +53,10 @@ def is_company_admin(context):
     user = getattr(request, "user", None)
     if not user or not user.is_authenticated:
         return False
-    return user.is_superuser or Membership.objects.filter(user=user, role="ADMIN").exists()
+    return (
+        user.is_superuser or Membership.objects.filter(user=user, role="ADMIN").exists()
+    )
+
 
 @register.filter
 def money(value, symbol="€"):
@@ -64,9 +73,10 @@ def money(value, symbol="€"):
             v = Decimal(str(float(value)))
         except Exception:
             return f"0,00 {symbol}"
-    s = f"{v:,.2f}"           # 12,345.67
+    s = f"{v:,.2f}"  # 12,345.67
     s = s.replace(",", " ").replace(".", ",")  # 12 345,67
     return f"{s} {symbol}"
+
 
 @register.filter
 def percent(value, digits=1):

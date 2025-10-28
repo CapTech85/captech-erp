@@ -1,6 +1,7 @@
 # portal/tests/test_templatetags.py
-from django.test import SimpleTestCase
 from django.template import Context, Template
+from django.test import SimpleTestCase
+
 
 class MoneyFilterTest(SimpleTestCase):
     def test_money_filter(self):
