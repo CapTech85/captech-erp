@@ -1,6 +1,121 @@
-/* static/css/portal-extras.css */
-body { background: linear-gradient(180deg,#fbfdff,#f8fafc); }
-.shadow-soft-lg { box-shadow: 0 12px 30px rgba(2,6,23,0.06); }
-.kpi-card { border: 1px solid rgba(14, 35, 56, 0.04); }
-.content-fade { transition: opacity .35s ease, transform .35s ease; opacity: 1; transform: none; }
-.skeleton-placeholder { transition: opacity .25s ease; }
+/* static/css/portal-extras.css
+   Variables, dark-mode polish, shadows et accessibilité
+*/
+
+:root {
+  --bg-page: #fbfdff;
+  --bg-soft: #f8fafc;
+  --card-bg: #ffffff;
+  --card-border: rgba(14, 35, 56, 0.04);
+  --card-shadow: 0 12px 30px rgba(2, 6, 23, 0.06);
+  --brand: #2563eb;
+  --text-primary: #0f1724;
+  --text-muted: #64748b;
+  --success: #16a34a;
+  --warn: #f59e0b;
+}
+
+/* Dark theme variables */
+:root.dark, .dark {
+  --bg-page: #071024;
+  --bg-soft: #071827;
+  --card-bg: linear-gradient(180deg,#071827,#021827);
+  --card-border: rgba(255,255,255,0.06);
+  --card-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  --brand: #60a5fa;
+  --text-primary: #e6eef8;
+  --text-muted: #94a3b8;
+  --success: #16a34a;
+  --warn: #f59e0b;
+}
+
+/* Page background and body */
+body.bg-app {
+  background: linear-gradient(180deg, var(--bg-page), var(--bg-soft));
+  color: var(--text-primary);
+  transition: background .35s ease, color .35s ease;
+}
+
+/* Card / KPI styling */
+.kpi-card, .card, .bg-white {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  box-shadow: var(--card-shadow);
+  color: var(--text-primary);
+}
+
+/* Card header stripe (accent) */
+.card-header-stripe {
+  border-left: 4px solid var(--brand);
+  padding-left: 1rem;
+  margin-left: -1rem;
+  margin-right: 1rem;
+}
+
+/* Subtle halo at top for volume on dark */
+.card {
+  box-shadow:
+    0 12px 30px rgba(0,0,0,0.45),
+    0 -4px 12px rgba(255,255,255,0.02);
+}
+
+/* Muted text */
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* Buttons and outlines */
+.btn-outline {
+  border: 1px solid rgba(255,255,255,0.08);
+  background: transparent;
+  color: var(--text-primary);
+}
+.btn-outline[disabled] {
+  background: rgba(255,255,255,0.02);
+  border-color: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.35);
+}
+
+/* Focus visible for accessibility */
+:focus {
+  outline: none;
+}
+:focus-visible, button:focus, a:focus {
+  outline: 3px solid rgba(37,99,235,0.45); /* brand blue */
+  outline-offset: 2px;
+}
+
+/* Skeleton polishing */
+.skeleton-placeholder {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  border-radius: 8px;
+}
+
+/* Tooltip / small text */
+.small-muted {
+  color: var(--text-muted);
+}
+
+/* Chart container background to increase contrast */
+.chart-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+/* Dark-mode specific tweaks */
+.dark .card, .dark .kpi-card {
+  color: var(--text-primary);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .kpi-card { padding: .75rem; }
+}

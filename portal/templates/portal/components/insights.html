@@ -1,0 +1,12 @@
+<div class="bg-white rounded-2xl shadow-sm p-4">
+  <div class="font-semibold mb-2">Insights</div>
+  {% if insights %}
+    <ul class="text-sm list-disc list-inside space-y-2">
+      {% for i in insights %}
+        <li>{{ i.message }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="text-sm text-slate-500">Aucun insight pour l'instant.</div>
+  {% endif %}
+</div>

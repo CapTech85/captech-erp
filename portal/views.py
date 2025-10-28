@@ -1,5 +1,5 @@
 import json
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -14,7 +14,7 @@ from django.http import (
     HttpResponseRedirect,
     JsonResponse,
 )
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_date
@@ -54,6 +54,9 @@ from .forms import (
     TicketStatusForm,
 )
 from .services import compute_dashboard
+from .services_insights import compute_insights
+
+Q2 = Decimal("0.01")
 
 
 def _is_superuser(u):
@@ -139,6 +142,8 @@ def dashboard(request):
             float(x) for x in dashboard_kpis["ca_series"]
         ],  # pour JS (Chart.js)
     }
+    dashboard_insights = compute_insights(company)
+    ctx.update({"insights": dashboard_insights})
     return render(request, "portal/dashboard.html", ctx)
 
 
@@ -590,22 +595,73 @@ def invoice_edit(request, pk: int):
 
 @login_required
 def invoice_pdf(request, pk: int):
+    """
+    Génère le PDF d'une facture via core.pdf.render_pdf_from_template.
+    Vérifie que l'utilisateur est lié à la même company (ou superuser).
+    Fournit un contexte complet : lignes, totaux HT/TVA/TTC, client.
+    """
     company = _user_company(request)
-    _require_feature(company, "invoices")
-    inv = (
-        Invoice.objects.select_related("customer", "company")
-        .prefetch_related("items")
-        .filter(company=company, pk=pk)
-        .first()
-        or Http404()
+    # Récupère la facture avec client et lignes
+    inv = get_object_or_404(
+        Invoice.objects.select_related("customer", "company").prefetch_related("items"),
+        pk=pk,
     )
-    subtotal, tax, total = compute_totals(inv.items.all())
-    pdf = render_pdf_from_template(
-        "pdf/invoice.html",
-        {"inv": inv, "subtotal": subtotal, "tax": tax, "total": total},
-    )
-    resp = HttpResponse(pdf, content_type="application/pdf")
-    resp["Content-Disposition"] = f'inline; filename="{inv.number}.pdf"'
+
+    # Contrôle d'accès minimal : l'utilisateur doit appartenir à la company ou être superuser
+    if not (request.user.is_superuser or (company and inv.company_id == company.id)):
+        raise Http404("Facture introuvable")
+
+    # Calcul des lignes et totaux
+    subtotal = Decimal("0.00")
+    vat_total = Decimal("0.00")
+    lines = []
+    for it in inv.items.all():
+        qty = Decimal(it.quantity)
+        unit_ht = (Decimal(it.unit_price_cents) / Decimal(100)).quantize(
+            Q2, rounding=ROUND_HALF_UP
+        )
+        base_ht = (unit_ht * qty).quantize(Q2, rounding=ROUND_HALF_UP)
+        discount_pct = Decimal(it.discount_pct or 0) / Decimal(100)
+        discount_amt = (base_ht * discount_pct).quantize(Q2, rounding=ROUND_HALF_UP)
+        line_ht = (base_ht - discount_amt).quantize(Q2, rounding=ROUND_HALF_UP)
+        vat_rate = Decimal(it.vat_rate or 0) / Decimal(100)
+        vat_amt = (line_ht * vat_rate).quantize(Q2, rounding=ROUND_HALF_UP)
+
+        lines.append(
+            {
+                "description": it.description,
+                "quantity": qty,
+                "unit_ht": unit_ht,
+                "base_ht": base_ht,
+                "discount_pct": float(discount_pct * 100),
+                "discount_amt": discount_amt,
+                "line_ht": line_ht,
+                "vat_rate": float(vat_rate * 100),
+                "vat_amt": vat_amt,
+                "total_ht": line_ht,
+            }
+        )
+        subtotal += line_ht
+        vat_total += vat_amt
+
+    subtotal = subtotal.quantize(Q2)
+    vat_total = vat_total.quantize(Q2)
+    total_ttc = (subtotal + vat_total).quantize(Q2)
+
+    # Contexte pour le template PDF (nommage simple pour templates)
+    ctx = {
+        "invoice": inv,
+        "company": inv.company,
+        "customer": inv.customer,
+        "lines": lines,
+        "subtotal": subtotal,
+        "vat_total": vat_total,
+        "total_ttc": total_ttc,
+    }
+
+    pdf_bytes = render_pdf_from_template("portal/pdf/invoice.html", ctx)
+    resp = HttpResponse(pdf_bytes, content_type="application/pdf")
+    resp["Content-Disposition"] = f'inline; filename="invoice_{inv.number}.pdf"'
     return resp
 
 

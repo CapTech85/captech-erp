@@ -4,7 +4,8 @@ from . import views
 
 # nouvelle importation
 from .views_accounting import accounting_dashboard as accounting_dashboard_view
-from .views_pdf import invoice_pdf, quote_pdf, urssaf_pdf
+
+# (views_pdf supprimé — on n'importe plus les mocks)
 
 app_name = "portal"
 
@@ -34,7 +35,5 @@ urlpatterns = [
     # utilisation de la nouvelle vue
     path("accounting/", accounting_dashboard_view, name="accounting"),
     path("accounting/urssaf/pdf/", views.urssaf_pdf, name="urssaf_pdf"),
-    path("pdf/invoice/<int:pk>/", invoice_pdf, name="invoice_pdf"),
-    path("pdf/quote/<int:pk>/", quote_pdf, name="quote_pdf"),
-    path("pdf/urssaf/<int:pk>/", urssaf_pdf, name="pdf_urssaf"),
+    # Les routes /pdf/... pointant vers les views de dev ont été supprimées
 ]
