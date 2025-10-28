@@ -1,8 +1,10 @@
 from django.urls import path
+
 from . import views
-from .views_pdf import invoice_pdf, quote_pdf, urssaf_pdf
+
 # nouvelle importation
 from .views_accounting import accounting_dashboard as accounting_dashboard_view
+from .views_pdf import invoice_pdf, quote_pdf, urssaf_pdf
 
 app_name = "portal"
 
@@ -15,7 +17,11 @@ urlpatterns = [
     path("tickets/<int:pk>/", views.ticket_detail, name="ticket_detail"),
     path("tickets/kanban/", views.tickets_kanban, name="tickets_kanban"),
     path("tickets/kanban/move/", views.tickets_kanban_move, name="tickets_kanban_move"),
-    path("tickets/kanban/reorder/", views.tickets_kanban_reorder, name="tickets_kanban_reorder"),
+    path(
+        "tickets/kanban/reorder/",
+        views.tickets_kanban_reorder,
+        name="tickets_kanban_reorder",
+    ),
     path("admin/dashboard/", views.admin_dashboard, name="admin_dashboard"),
     path("quotes/", views.quotes, name="quotes"),
     path("quotes/new/", views.quote_new, name="quote_new"),

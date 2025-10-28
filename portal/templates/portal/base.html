@@ -43,7 +43,7 @@
         </a>
           {% endif %}
         {% endif %}
-        
+
         {% if request.user.is_superuser %}
           <div class="pt-4 mt-4 border-t border-white/10 text-[11px] uppercase tracking-wide opacity-80">Admin</div>
           <a href="{% url 'admin:index' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10">🛠️ <span>Admin Django</span></a>

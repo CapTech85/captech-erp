@@ -1,28 +1,27 @@
-from django.db.models.signals import post_migrate
-from django.dispatch import receiver
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from django.apps import apps
+from django.db.models.signals import post_migrate
+from django.dispatch import receiver
 
 GROUPS = {
     "COMPANY_ADMIN": {
         "models": {
-            "customer": ["add","change","delete","view"],
-            "quote": ["add","change","delete","view"],
-            "quoteitem": ["add","change","delete","view"],
-            "invoice": ["add","change","delete","view"],
-            "invoiceitem": ["add","change","delete","view"],
-            "ticket": ["add","change","delete","view"],
+            "customer": ["add", "change", "delete", "view"],
+            "quote": ["add", "change", "delete", "view"],
+            "quoteitem": ["add", "change", "delete", "view"],
+            "invoice": ["add", "change", "delete", "view"],
+            "invoiceitem": ["add", "change", "delete", "view"],
+            "ticket": ["add", "change", "delete", "view"],
         }
     },
     "COMPANY_STAFF": {
         "models": {
-            "customer": ["add","change","view"],
-            "quote": ["add","change","view"],
-            "quoteitem": ["add","change","view"],
-            "invoice": ["add","change","view"],
-            "invoiceitem": ["add","change","view"],
-            "ticket": ["add","change","view"],
+            "customer": ["add", "change", "view"],
+            "quote": ["add", "change", "view"],
+            "quoteitem": ["add", "change", "view"],
+            "invoice": ["add", "change", "view"],
+            "invoiceitem": ["add", "change", "view"],
+            "ticket": ["add", "change", "view"],
         }
     },
     "COMPANY_MEMBER": {
@@ -47,15 +46,16 @@ GROUPS = {
     },
     "SUPPORT_ENGINEER": {
         "models": {
-            "customer": ["view","change"],
-            "quote": ["view","change"],
-            "quoteitem": ["view","change"],
-            "invoice": ["view","change"],
-            "invoiceitem": ["view","change"],
-            "ticket": ["view","change"],
+            "customer": ["view", "change"],
+            "quote": ["view", "change"],
+            "quoteitem": ["view", "change"],
+            "invoice": ["view", "change"],
+            "invoiceitem": ["view", "change"],
+            "ticket": ["view", "change"],
         }
     },
 }
+
 
 @receiver(post_migrate)
 def ensure_groups(sender, **kwargs):
