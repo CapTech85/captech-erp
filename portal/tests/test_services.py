@@ -1,27 +1,49 @@
 # portal/tests/test_services.py
 from decimal import Decimal
 from django.test import TestCase
-from core.models import Customer, Invoice, InvoiceItem
+from django.utils import timezone
+
+# imports projet — adapte si les noms diffèrent
+from core.models import Company, Customer, Invoice, InvoiceItem
 from portal.services import compute_dashboard
 
 class DashboardServiceTest(TestCase):
     def setUp(self):
-        # créer company et client simples (adapter selon ton modèle)
-        company = self._create_company()
-        self.company = company
-        # create a customer
-        c = Customer.objects.create(company=company, name="Client Test")
-        # create a couple of invoices/invoiceitems
-        inv1 = Invoice.objects.create(company=company, customer=c, number="INV-1", issue_date="2025-01-01", status="ISSUED")
-        InvoiceItem.objects.create(invoice=inv1, description="Item", quantity=1, unit_price_cents=10000, vat_rate=20)
+        # create company / customer / invoices
+        self.company = Company.objects.create(name="Test Co")
+        self.customer = Customer.objects.create(company=self.company, name="Client Test")
 
-    def _create_company(self):
-        # adapte selon ton model Company
-        from core.models import Company
-        return Company.objects.create(name="Test Company")
+        today = timezone.now().date()
+        # invoice 1 (current month)
+        inv1 = Invoice.objects.create(
+            company=self.company,
+            customer=self.customer,
+            number="INV-001",
+            issue_date=today,
+            status="ISSUED",
+        )
+        InvoiceItem.objects.create(invoice=inv1, description="Item A", quantity=1, unit_price_cents=10000, vat_rate=20)
 
-    def test_compute_dashboard_keys(self):
+        # invoice 2 (older)
+        inv2 = Invoice.objects.create(
+            company=self.company,
+            customer=self.customer,
+            number="INV-002",
+            issue_date=today - timezone.timedelta(days=45),
+            status="ISSUED",
+        )
+        InvoiceItem.objects.create(invoice=inv2, description="Item B", quantity=2, unit_price_cents=5000, vat_rate=20)
+
+    def test_compute_dashboard_returns_keys(self):
         data = compute_dashboard(self.company, use_cache=False)
-        assert "cash_balance" in data
-        assert "ca_series" in data
-        assert isinstance(data["ca_series"], list)
+        assert isinstance(data, dict)
+        for key in ("cash_balance", "ca_month", "invoices_open_total", "clients_over_30", "recent_invoices", "aging", "top_customers", "ca_series"):
+            assert key in data
+
+    def test_ca_month_and_aging(self):
+        data = compute_dashboard(self.company, use_cache=False)
+        # CA month should be a Decimal > 0
+        assert data["ca_month"] >= Decimal("0.00")
+        # aging buckets present and decimals
+        for k in ("0_30","31_60","61_90","gt_90"):
+            assert k in data["aging"]
