@@ -4,7 +4,6 @@ from . import views
 
 # nouvelle importation
 from .views_accounting import accounting_dashboard as accounting_dashboard_view
-from portal.views import invoice_pdf, quote_pdf, urssaf_pdf
 
 app_name = "portal"
 
