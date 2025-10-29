@@ -574,7 +574,7 @@ def invoice_new(request):
 def invoice_edit(request, pk: int):
     company = _user_company(request)
     _require_feature(company, "invoices")
-    inv = Invoice.objects.filter(company=company, pk=pk).first() or Http404()
+    inv = get_object_or_404(Invoice, company=company, pk=pk)
     if request.method == "POST":
         form = InvoiceForm(request.POST, instance=inv)
         formset = InvoiceItemFormSet(request.POST, instance=inv)
