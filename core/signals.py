@@ -38,14 +38,6 @@ def on_ticket_created(sender, instance: Ticket, created, **kwargs):
         auto_assign(instance)
         send_ticket_email(
             f"[Ticket #{instance.pk}] Créé - {instance.title}",
-            f"Un nouveau ticket a été créé.\n\nStatut: {instance.status}\nPriorité:{instance.priority}\nDescription:\n{instance.description}",
-            _company_recipients(instance),
-        )
-        # auto assign
-        auto_assign(instance)
-        # email
-        send_ticket_email(
-            f"[Ticket #{instance.pk}] Créé - {instance.title}",
             f"Un nouveau ticket a été créé.\n\nStatut: {instance.status}\nPriorité: {instance.priority}\nDescription:\n{instance.description}",
             _company_recipients(instance),
         )
