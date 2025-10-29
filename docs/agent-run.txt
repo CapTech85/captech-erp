@@ -1,0 +1,4 @@
+Agent demo run
+Date: 2025-10-29T13:21:00+02:00
+Auteur: [agent]
+Action: add docs/agent-run.txt as a safe test
