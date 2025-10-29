@@ -4,11 +4,7 @@ from . import views
 
 # nouvelle importation
 from .views_accounting import accounting_dashboard as accounting_dashboard_view
-from .views_pdf import invoice_pdf, quote_pdf, urssaf_pdf
-
-# (views_pdf supprimé — on n'importe plus les mocks)
-
-# (views_pdf supprimé — on n'importe plus les mocks)
+from portal.views import invoice_pdf, quote_pdf, urssaf_pdf
 
 app_name = "portal"
 
