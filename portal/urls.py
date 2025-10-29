@@ -4,7 +4,7 @@ from . import views
 
 # nouvelle importation
 from .views_accounting import accounting_dashboard as accounting_dashboard_view
-from portal.views import invoice_pdf, quote_pdf, urssaf_pdf
+from .views_export import enqueue_export
 
 app_name = "portal"
 
@@ -32,6 +32,11 @@ urlpatterns = [
     path("invoices/<int:pk>/edit/", views.invoice_edit, name="invoice_edit"),
     path("invoices/<int:pk>/pdf/", views.invoice_pdf, name="invoice_pdf"),
     # utilisation de la nouvelle vue
+    path(
+        "invoices/<int:pk>/enqueue-export/",
+        enqueue_export,
+        name="invoice_enqueue_export",
+    ),
     path("accounting/", accounting_dashboard_view, name="accounting"),
     path("accounting/urssaf/pdf/", views.urssaf_pdf, name="urssaf_pdf"),
     # Les routes /pdf/... pointant vers les views de dev ont été supprimées
