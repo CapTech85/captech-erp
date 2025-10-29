@@ -5,9 +5,8 @@ from . import models
 
 
 def companies_user_can_access(user):
-    pass
-
-    models.Company.objects.none()
+    if not getattr(user, "is_authenticated", False):
+        return models.Company.objects.none()
     if user.is_superuser:
         # Mode strict: on n'affiche QUE les companies avec grant actif
         return models.Company.objects.filter(
